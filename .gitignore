@@ -1,0 +1,85 @@
+#General
+*obj
+*bin
+*wwwroot
+*.code-workspace
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
+*.log
+.builds
+.cache
+*.pidb
+*.svclog
+*.scc
+*.pfx
+*.pem
+
+#Environment
+#.env
+.venv
+env/
+venv/
+
+#Docker
+#*Dockerfile
+
+#Kubernetes
+*kubernetes
+
+#.NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+#Python
+__pycache__/
+*.manifest
+*.spec
+*py.cover
+
+#Js
+*node_modules
+
+#VSCode
+*.vs
+*.vscode
+
+# Visual Studio
+*appsettings.Development.json
+*.vspscc
+*.vssscc
+*.psess
+*.vsp
+*.vspx
+*.sap
+*.e2e
+
+# Visual Studio cache files
+# files ending in .cache can be ignored
+*.[Cc]ache
+# but keep track of directories ending in .cache
+!?*.[Cc]ache/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# SQL Server files
+*.mdf
+*.ldf
+*.ndf
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# NUNIT
+*.VisualState.xml
+TestResult.xml
+
+#MacOS
+.DS_Store

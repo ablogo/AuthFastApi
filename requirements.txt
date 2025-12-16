@@ -1,0 +1,11 @@
+pip
+setuptools
+fastapi
+uvicorn
+pymongo[srv]
+python-dotenv
+python-multipart
+pyjwt
+passlib[bcrypt]
+cryptography
+dependency-injector
