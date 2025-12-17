@@ -1,5 +1,4 @@
 pip
-setuptools
 fastapi
 uvicorn
 pymongo[srv]
@@ -9,3 +8,4 @@ pyjwt
 passlib[bcrypt]
 cryptography
 dependency-injector
+setuptools

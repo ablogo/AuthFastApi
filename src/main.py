@@ -12,20 +12,20 @@ from src.dependencies import close_db
 
 config = dotenv_values(".env")
 
-origins = ["http://localhost:8081"]
+origins = config["CORS_ALLOWED_HOSTS"].split(',') if config["CORS_ALLOWED_HOSTS"] else []
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await startup_db()
+    await start()
     yield
-    await shutdown_db()
+    await shutdown()
 
-async def startup_db():
-    print("Connected to the MongoDB database!")
+async def start():
+    print("Website is starting!")
 
-async def shutdown_db():
+async def shutdown():
     await close_db()
-    print("Disconnected to the MongoDB database!")
+    print("Website is shutting down!")
 
 app = FastAPI(lifespan=lifespan)
 container = Container()
@@ -46,4 +46,4 @@ app.include_router(chat_router.router)
 #Root route
 @app.get("/")
 async def main():
-    return {"message": "Learning python" }
+    return { "message": "Learning python" }

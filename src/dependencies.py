@@ -5,8 +5,7 @@ from pymongo.server_api import ServerApi
 config = dotenv_values(".env")
 
 client = AsyncMongoClient(config["MONGO_URL"], server_api= ServerApi(version='1', strict=True, deprecation_errors=True))
-db_name = config["DB_NAME"]
-database = client.get_database(db_name)
+database = client.get_database(config["DB_NAME"])
         
 async def get_db():
     try:
@@ -17,7 +16,7 @@ async def get_db():
         
 async def close_db():
     try:
-         await client.close()
+        await client.close()
     except Exception as e:
         print(e)
         raise e

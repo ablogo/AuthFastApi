@@ -87,7 +87,7 @@ class CryptoService:
         try:
             public_key = self.public_key
             if public_key is not None:
-                ciphertext = public_key.encrypt(
+                ciphertext = public_key.encrypt( # type: ignore
                     text.encode(),
                     padding.OAEP(
                         mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -104,7 +104,7 @@ class CryptoService:
     async def decrypt_text(self, text: str):
         try:
             private_key = self.private_key
-            plaintext = private_key.decrypt(
+            plaintext = private_key.decrypt( # type: ignore
                 base64.b64decode(text),
                 padding.OAEP(
                     mgf=padding.MGF1(algorithm=hashes.SHA256()),

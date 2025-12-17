@@ -10,12 +10,12 @@ class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
         modules=[
             "src.routers.auth_router",
-            "src.routers.products_router",
             "src.routers.users_router",
             "src.routers.admin.users_router",
             "src.services.user_service",
             "src.services.chat_service",
-            "src.services.jwt_service"
+            "src.services.jwt_service",
+            "src.routers.products_router"
             ])
 
     config = providers.Configuration(ini_files=["config.ini"])

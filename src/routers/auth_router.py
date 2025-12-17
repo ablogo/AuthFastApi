@@ -25,7 +25,7 @@ log_dependency = Annotated[MongoLogger, Depends(Provide[Container.logging])]
 @inject
 async def sign_up(model: SignUp, db: db_dependency, log: log_dependency, request: Request):
     try:
-        client_host = request.client.host
+        client_host = request.client.host # type: ignore
         log.logger.info(f"{ model.email } sign-up from ip: { client_host }")
         content = ""
         status_code = 0
@@ -46,7 +46,7 @@ async def sign_up(model: SignUp, db: db_dependency, log: log_dependency, request
 @inject
 async def sign_in(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency, log: log_dependency, request: Request):
     try:
-        client_host = request.client.host
+        client_host = request.client.host # type: ignore
         log.logger.info(f"{ form_data.username } login from ip: { client_host }")
         content = ""
         status_code = status.HTTP_401_UNAUTHORIZED
