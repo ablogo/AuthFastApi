@@ -1,5 +1,7 @@
 # AuthFastApi
-Authentication microservice
+Authentication microservice, the goal of this project is to learn Python and FastApi, it will be updated as new versions of these tools are released.
+
+It is a microservice for user administration and authenication, using JWT tokens and encrypting the information within it, different approaches are used, that is why there may be different implementations performing the same functions.
 
 ## Requirements
 - Python 3.12+
@@ -46,14 +48,5 @@ uvicorn src.main:app --reload
 http://127.0.0.1:8000/docs
 ```
 
-## Description
-The goal of this project is to learn Python and FastApi. It will be updated as new versions of these tools are released.
-
-It is a microservice for user administration and authenication, using JWT tokens and encrypting the information within it.
-
-Different approaches are used.
-
-That is why there may be different implementations performing the same functions.
-
-[!NOTE]
-Since the project is used for learning, it does not strictly follow the concept of microservices, where each microservice should have its own realm of responsability
+> [!NOTE]
+> Since the project is used for learning, it does not strictly follow the concept of microservices, where each microservice should have its own realm of responsability
