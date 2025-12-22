@@ -1,9 +1,12 @@
 from dependency_injector import containers, providers
+import os
+from dotenv import load_dotenv
 
 from src.services import mongodb_service
 from src.services.crypto_service import CryptoService
 from src.logging.mongo_logging import MongoLogger
 
+load_dotenv()
 
 class Container(containers.DeclarativeContainer):
 
@@ -18,20 +21,20 @@ class Container(containers.DeclarativeContainer):
             "src.routers.products_router"
             ])
 
-    config = providers.Configuration(ini_files=["config.ini"])
+    #config = providers.Configuration(ini_files=["config.ini"])
 
     logging = providers.Singleton(
         MongoLogger,
-        config.log.db_url,
-        config.log.db_database,
+        os.environ["LOG_DB_URL"], #config.log.db_url,
+        os.environ["LOG_DATABASE_NAME"], #config.log.db_database,
         "",
-        config.log.level
+        os.environ["LOG_LEVEL"], #config.log.level
     )
 
     database_client = providers.Singleton(
         mongodb_service.MongoAsyncService,
-        config.database.url,
-        config.database.name
+        os.environ["DB_URL"], #config.database.url,
+        os.environ["DB_NAME"], #config.database.name
     )
 
     crypto_service = providers.Singleton(

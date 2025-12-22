@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta, timezone
 from dependency_injector.wiring import Provide, inject
-from dotenv import dotenv_values
-from fastapi import HTTPException, Header, Request
-import jwt
+from fastapi import HTTPException, Request
+from dotenv import load_dotenv
+import os, jwt
 
 from src.services.crypto_service import CryptoService
 from src.logging.mongo_logging import MongoLogger
@@ -10,17 +10,17 @@ from src.dependency_injection.containers import Container
 
 crypto_service: CryptoService = Provide[Container.crypto_service]
 log_service: MongoLogger = Provide[Container.logging]
-config = dotenv_values(".env")
+load_dotenv()
 
 @inject
-async def create_token(data: dict, expire_time: timedelta = timedelta(minutes=int(str(config["EXPIRE_MINUTES"]))), crypto = crypto_service, log = log_service):
+async def create_token(data: dict, expire_time: timedelta = timedelta(minutes=int(str(os.environ["JWT_EXPIRE_MINUTES"]))), crypto = crypto_service, log = log_service):
     try:
         for item in data:
              data[item] = await crypto.encrypt_text(data[item])
              
         expire = datetime.now(timezone.utc) + expire_time
         data.update({ "exp": expire })
-        encode_jwt = jwt.encode(data, str(config["SECRET_KEY"]), algorithm= config["ALGORITHM"])
+        encode_jwt = jwt.encode(data, str(os.environ["JWT_SECRET_KEY"]), algorithm= os.environ["JWT_ALGORITHM"])
         return encode_jwt
     except Exception as e:
         log.logger.error(e)
@@ -53,7 +53,7 @@ async def verify_token_from_requests(request: Request):
 @inject
 async def verify(request_token: str, log = log_service):
         try:
-            payload = jwt.decode(request_token, str(config["SECRET_KEY"]), config["ALGORITHM"])
+            payload = jwt.decode(request_token, str(os.environ["JWT_SECRET_KEY"]), os.environ["JWT_ALGORITHM"])
             return payload
         except jwt.ExpiredSignatureError as e:
             log.logger.error(e)
@@ -68,7 +68,7 @@ async def verify(request_token: str, log = log_service):
 @inject
 async def get_email(token, crypto = crypto_service, log = log_service):
     try:
-        payload = jwt.decode(token, str(config["SECRET_KEY"]), config["ALGORITHM"])
+        payload = jwt.decode(token, str(os.environ["JWT_SECRET_KEY"]), os.environ["JWT_ALGORITHM"])
         email = await crypto.decrypt_text(payload.get("sub"))
         if email is None:
             return None
