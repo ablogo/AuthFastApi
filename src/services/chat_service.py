@@ -1,6 +1,7 @@
 from datetime import datetime
 from dependency_injector.wiring import Provide, inject
-from dotenv import dotenv_values
+from dotenv import load_dotenv
+import os
 
 from src.services.user_service import get_user
 from src.services.crypto_service import CryptoService
@@ -10,15 +11,15 @@ from src.models.message_model import Message, MessagesSended
 from src.logging.mongo_logging import MongoLogger
 from src.dependency_injection.containers import Container
 
+load_dotenv()
 crypto_service: CryptoService = Provide[Container.crypto_service]
 db_dependency: MongoAsyncService = Provide[Container.database_client]
 logger: MongoLogger = Provide[Container.logging]
-config = dotenv_values(".env")
-users_collection = str(config["DB_USERS_COLLECTION"])
-users_contacts_collection = str(config["DB_USERS_CONTACTS_COLLECTION"])
-users_messages_collection = str(config["DB_USERS_MESSAGES_COLLECTION"])
+users_collection = str(os.environ["DB_USERS_COLLECTION"])
+users_contacts_collection = str(os.environ["DB_USERS_CONTACTS_COLLECTION"])
+users_messages_collection = str(os.environ["DB_USERS_MESSAGES_COLLECTION"])
 
-    
+
 @inject
 async def get_contacts(email: str, db = db_dependency, log = logger) -> list[Contact] | None:
     try:
