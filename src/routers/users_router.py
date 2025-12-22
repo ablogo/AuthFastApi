@@ -24,8 +24,8 @@ db_dependency = Annotated[MongoAsyncService, Depends(Provide[Container.database_
 @router.get("/user", response_model_by_alias=False)
 @inject
 async def get_user(db: db_dependency, email: Annotated[str, Depends(verify_token_from_requests)]) -> User | None:
-    users = await uSvc.get_user(email, db.get_db())
-    return users
+    user = await uSvc.get_user(email, db.get_db())
+    return user
 
 @router.post("/user/img", response_model_by_alias=False)
 @inject
