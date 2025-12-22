@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from dependency_injector.wiring import Provide, inject
@@ -31,7 +31,7 @@ async def sign_up(model: SignUp, db: db_dependency, log: log_dependency, request
         status_code = 0
         user = await create_user(db.database, User(name= model.name, email= model.email, password= model.password, disabled=False))
         if user is not None:
-            content = user.model_dump()
+            content = user.model_dump_json()
             status_code = status.HTTP_200_OK
         else:
             content = "Unable to create user"
@@ -40,7 +40,7 @@ async def sign_up(model: SignUp, db: db_dependency, log: log_dependency, request
     except Exception as e:
         log.logger.error(e)
     finally:
-        return JSONResponse(content, status_code)
+        return Response(content, status_code, media_type="application/json")
 
 @router.post("/sign-in")
 @inject
@@ -70,4 +70,4 @@ async def validate_token(log: log_dependency, email: Annotated[str, Depends(oaut
     except Exception as e:
         log.logger.error(e)
     finally:
-        return JSONResponse(email, status_code)
+        return Response(email, status_code, media_type="text/plain")

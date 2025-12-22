@@ -17,7 +17,6 @@ log_service: MongoLogger = Provide[Container.logging]
 config = dotenv_values(".env")
 users_collection = str(config["DB_USERS_COLLECTION"])
 users_pics_collection = str(config["DB_USERS_PICTURES_COLLECTION"])
-users_addresses_collection = str(config["DB_USERS_ADDRESS_COLLECTION"])
 
 @inject
 async def get_user(email: str, db: AsyncDatabase, log = log_service) -> User | None:

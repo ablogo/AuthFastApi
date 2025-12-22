@@ -1,5 +1,6 @@
-from src.services.mongodb_service import MongoService
 import logging, time
+
+from src.services.mongodb_service import MongoService
 
 class MongoLoggerHandler(logging.Handler):
 

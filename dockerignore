@@ -23,3 +23,5 @@
 **/values.dev.yaml
 __pycache__/
 README.md
+**/.DS_Store
+**/bin

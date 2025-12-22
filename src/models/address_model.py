@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import Annotated, Optional
 from bson import ObjectId
-from pydantic import AfterValidator, BaseModel, PlainValidator, Field
+from pydantic import BaseModel, PlainValidator, Field
 
 from src.models.pydantic_objects import PyObjectId
 
 def set_id(value) -> ObjectId:
-    if value is None:
+    if not value:
         return ObjectId()
     return value
 

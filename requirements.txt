@@ -1,10 +1,11 @@
 pip
 fastapi
-uvicorn
+uvicorn[standard]
 pymongo[srv]
 python-dotenv
 python-multipart
 pyjwt
+bcrypt==4.0.1
 passlib[bcrypt]
 cryptography
 dependency-injector
