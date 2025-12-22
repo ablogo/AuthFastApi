@@ -16,10 +16,11 @@
 *.pem
 
 #Environment
-#.env
+.env
 .venv
 env/
 venv/
+*.ini
 
 #Docker
 #*Dockerfile
