@@ -15,8 +15,6 @@ jobs:
     permissions:
       packages: write
       contents: read
-      attestations: write
-      id-token: write
     steps:
       - name: Check out the repo
         uses: actions/checkout@v5
@@ -40,5 +38,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: auth-service:latest
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
