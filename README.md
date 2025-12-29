@@ -7,6 +7,9 @@ It is a microservice for user administration and authenication, using JWT tokens
 - Python 3.12+
 - FastApi 0.124+
 
+> [!IMPORTANT]
+> It is necessary to complete the configuration file(.env), and create the PEM files and place them in the root folder
+
 ## Installing
 1. Create a virtual environment
 ```bash
@@ -35,9 +38,9 @@ Use the private key file to extract the public key in PEM format
 ```bash
 openssl rsa -in private_key.pem -pubout -out public_key.pem
 ```
-5. Set configurations files (.env) for different purposes (mongodb, JWT, CORS, logs)
+5. Set configuration file (.env)
 
-The microservice uses mongoDB as its database, so the connection string and other configurations must be included in the configuration file
+The microservice uses mongoDB as its database, so the connection string and other configurations (mongodb, JWT, CORS, logs) must be included
 
 6. Run local development server
 ```bash
@@ -62,9 +65,6 @@ docker pull ghcr.io/ablogo/authfastapi:latest
 ```bash
 docker run -p 8000:80 --env-file .env auth-service:latest
 ```
-
-> [!IMPORTANT]
-> It is necessary to complete the configuration file(.env), and create the PEM files and place them in the root folder
 
 > [!NOTE]
 > Since the project is used for learning, it does not strictly follow the concept of microservices, where each microservice should have its own realm of responsability
