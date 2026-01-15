@@ -11,7 +11,7 @@ crypto_service: CryptoService = Provide[Container.crypto_service]
 logger: MongoLogger = Provide[Container.logging]
 
 @inject
-async def login(username, password, db, crypto = crypto_service, log = logger):
+async def login(username: str, password: str, db, crypto = crypto_service, log = logger):
     try:
         user = await get_user(username, db)
         if user is not None:
@@ -19,8 +19,8 @@ async def login(username, password, db, crypto = crypto_service, log = logger):
             if not user.email_verified:
                 return True, None
             if is_password_valid and not user.disabled:
-                token = await create_token({ "sub": user.email, "name": user.name })
-                return True, Token(access_token=token, token_type="bearer")
+                token = await create_token({ "sub": user.email, "name": user.name, "roles": user.roles })
+                return True, Token(access_token = token, token_type = "bearer")
     except Exception as e:
         log.logger.error(e)
     return False, None

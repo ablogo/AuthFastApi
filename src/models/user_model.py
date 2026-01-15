@@ -25,6 +25,7 @@ class User(BaseModel):
     email_verified: bool = False
     password: str
     twofactor_enabled: bool = False
+    roles: Optional[List[str]] = list()
     address: Optional[List[Address]] = list()
     online: bool = False
     disabled: bool = False

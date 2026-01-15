@@ -3,8 +3,7 @@ from fastapi import APIRouter, Depends, Response
 from dependency_injector.wiring import Provide, inject
 
 from src.dependency_injection.containers import Container
-from src.logging.mongo_logging import MongoLogger
-from src.middlewares.auth_jwt import JWTCustom
+from src.middlewares.auth_roles_jwt import JWTCustom
 import src.services.totp_service as securitySvc
 
 oauth2_scheme = JWTCustom(tokenUrl="/auth/sign-in")
