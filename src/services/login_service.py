@@ -16,10 +16,11 @@ async def login(username, password, db, crypto = crypto_service, log = logger):
         user = await get_user(username, db)
         if user is not None:
             is_password_valid = await crypto.verify_password(password, user.password)
-            if is_password_valid or user.disabled:
+            if not user.email_verified:
+                return True, None
+            if is_password_valid and not user.disabled:
                 token = await create_token({ "sub": user.email, "name": user.name })
-                return Token(access_token=token, token_type="bearer")
-        return None
+                return True, Token(access_token=token, token_type="bearer")
     except Exception as e:
         log.logger.error(e)
-        return None
+    return False, None

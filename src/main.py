@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 
 from src.routers import auth_router, products_router, users_router
-from src.routers.admin import users_router as admin_user_router
+from src.routers.admin import users_router as admin_user_router, security_router
 from src.middlewares.jwt_middleware import JWTMiddleware
 from src.middlewares.http_middleware import HttpMiddleware
 from src.dependency_injection.containers import Container
@@ -41,6 +41,7 @@ app.include_router(auth_router.router)
 app.include_router(users_router.router)
 app.include_router(products_router.router)
 app.include_router(admin_user_router.router)
+app.include_router(security_router.router)
 
 #Root route
 @app.get("/")

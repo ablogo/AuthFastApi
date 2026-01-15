@@ -48,12 +48,14 @@ async def sign_in(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db
     try:
         client_host = request.client.host # type: ignore
         log.logger.info(f"{ form_data.username } login from ip: { client_host }")
-        content = ""
+        content = None
         status_code = status.HTTP_401_UNAUTHORIZED
-        token = await login(form_data.username, form_data.password, db.database)
+        result, token = await login(form_data.username, form_data.password, db.database)
         if token is not None:
             content = token.model_dump()
             status_code = status.HTTP_200_OK
+        elif result and token is None:
+            status_code = status.HTTP_412_PRECONDITION_FAILED
 
     except Exception as e:
         log.logger.error(e)

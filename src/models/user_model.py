@@ -22,12 +22,14 @@ class User(BaseModel):
     name: str
     last_name: Optional[str] = None
     email: Annotated[str, BeforeValidator(validate_email)]
+    email_verified: bool = False
     password: str
+    twofactor_enabled: bool = False
     address: Optional[List[Address]] = list()
-    created_at: datetime = datetime.now()
-    updated_at: Optional[datetime] = None
     online: bool = False
     disabled: bool = False
+    created_at: datetime = datetime.now()
+    updated_at: Optional[datetime] = None
 
     #model_config = ConfigDict(arbitrary_types_allowed=True)
 

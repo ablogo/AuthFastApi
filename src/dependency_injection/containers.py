@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from src.services import mongodb_service
 from src.services.crypto_service import CryptoService
 from src.logging.mongo_logging import MongoLogger
+from src.services.totp_service import TOTP
 
 load_dotenv()
 
@@ -15,10 +16,12 @@ class Container(containers.DeclarativeContainer):
             "src.routers.auth_router",
             "src.routers.users_router",
             "src.routers.admin.users_router",
+            "src.routers.admin.security_router",
             "src.services.user_service",
             "src.services.login_service",
             "src.services.jwt_service",
-            "src.routers.products_router"
+            "src.routers.products_router",
+            "src.services.totp_service",
             ])
 
     #config = providers.Configuration(ini_files=["config.ini"])
@@ -39,5 +42,14 @@ class Container(containers.DeclarativeContainer):
 
     crypto_service = providers.Singleton(
         CryptoService,
+        logging
+    )
+
+    totp = providers.Singleton(
+        TOTP,
+        os.environ["TOTP_SECRET"],
+        os.environ["TOTP_DIGEST"],
+        int(os.environ["TOTP_TIME_STEP"]),
+        int(os.environ["TOTP_RETURN_DIGITS"]),
         logging
     )
