@@ -237,3 +237,21 @@ async def update_address(db: AsyncDatabase, email: str, address: Address, log = 
         log.logger.error(e)
     finally:
         return result
+    
+@inject
+async def change_status(status: bool, email: str, db: AsyncDatabase, log = log_service) -> bool:
+    result = False
+    try:
+        user_db = await db[users_collection].find_one({'email': email})
+
+        if user_db != None:
+            query_filter = {"email": email}
+            update_op = {"$set" : {"online" : status }}
+            op_result = await db[users_collection].update_one(query_filter, update_op)
+            
+            if op_result.modified_count > 0:
+                result = True
+
+    except Exception as e:
+        log.logger.error(e)
+    return result
