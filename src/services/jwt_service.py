@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 from dependency_injector.wiring import Provide, inject
 from fastapi import HTTPException, Request
 from dotenv import load_dotenv
@@ -16,7 +17,12 @@ load_dotenv()
 async def create_token(data: dict, expire_time: timedelta = timedelta(minutes=int(str(os.environ["JWT_EXPIRE_MINUTES"]))), crypto = crypto_service, log = log_service):
     try:
         for item in data:
-             data[item] = await crypto.encrypt_text(data[item])
+            if isinstance(data[item], list):
+                for x in range(len(data[item])):
+                    # To encrypt the roles use the commented code
+                    data[item][x] = data[item][x] #await crypto.encrypt_text(data[item][x])
+            else:
+                data[item] = await crypto.encrypt_text(data[item])
              
         expire = datetime.now(timezone.utc) + expire_time
         data.update({ "exp": expire })
@@ -33,8 +39,25 @@ async def verify_token(token: str, crypto = crypto_service, log = log_service):
             email = await crypto.decrypt_text(payload.get("sub"))
             return email
         except Exception as e:
-             log.logger.error(e)
-             raise e
+            log.logger.error(e)
+            raise e
+        
+@inject
+async def verify_token_and_roles(token: str, required_roles: Optional[list[str]] = None, crypto = crypto_service, log = log_service):
+        try:
+            payload = await verify(token)
+            email = await crypto.decrypt_text(payload.get("sub"))
+            if required_roles:
+                roles = payload.get('roles', [])
+
+                if bool(set(required_roles) & set(roles)):
+                    return email
+                else:
+                    raise HTTPException(status_code=401, detail="Insufficient permissions")
+                
+        except Exception as e:
+            log.logger.error(e)
+            raise e
     
 #async def verify_token(Authorization: str = Header(...)) -> bool:
 async def verify_token_from_requests(request: Request):
@@ -47,8 +70,8 @@ async def verify_token_from_requests(request: Request):
             return email
             
         except Exception as e:
-             #log.logger.error(e)
-             raise e
+            #log.logger.error(e)
+            raise e
         
 @inject
 async def verify(request_token: str, log = log_service):
@@ -62,8 +85,8 @@ async def verify(request_token: str, log = log_service):
             log.logger.error(e)
             raise HTTPException(status_code=401, detail="Invalid credentials")
         except Exception as e:
-             log.logger.error(e)
-             raise e
+            log.logger.error(e)
+            raise e
 
 @inject
 async def get_email(token, crypto = crypto_service, log = log_service):
@@ -73,6 +96,6 @@ async def get_email(token, crypto = crypto_service, log = log_service):
         if email is None:
             return None
     except Exception as e:
-         log.logger.error(e)
+        log.logger.error(e)
     else:
         return email
