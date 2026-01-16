@@ -2,12 +2,11 @@ from datetime import datetime
 from typing import Optional, Union
 from src.services.otp_service import OTP
 import time
-
-from src.logging.mongo_logging import MongoLogger
+from log2mongo import log2mongo
 
 class TOTP(OTP):
 
-    def __init__(self, secret: str, digest: str, time_step: int, return_digits: int, log: MongoLogger) -> None:
+    def __init__(self, secret: str, digest: str, time_step: int, return_digits: int, log: log2mongo) -> None:
         self.secret = secret
         self.digest = digest
         self.time_step = time_step

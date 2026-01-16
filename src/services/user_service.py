@@ -2,6 +2,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import UploadFile
 from pymongo.asynchronous.database import AsyncDatabase
 from bson import ObjectId, Binary
+from log2mongo import log2mongo
 from dotenv import load_dotenv
 import os
 
@@ -10,11 +11,10 @@ from src.services.jwt_service import get_email
 from src.models.user_picture import UserPicture
 from src.models.user_model import User
 from src.models.address_model import Address
-from src.logging.mongo_logging import MongoLogger
 from src.dependency_injection.containers import Container
 
 crypto_service: CryptoService = Provide[Container.crypto_service]
-log_service: MongoLogger = Provide[Container.logging]
+log_service: log2mongo = Provide[Container.logging]
 load_dotenv()
 users_collection = str(os.environ["DB_USERS_COLLECTION"])
 users_pics_collection = str(os.environ["DB_USERS_PICTURES_COLLECTION"])
