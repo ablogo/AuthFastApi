@@ -1,6 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Response
 from pymongo.asynchronous.database import AsyncDatabase
+from log2mongo import log2mongo
 from dependency_injector.wiring import Provide, inject
 
 from src.models.user_model import User
@@ -9,7 +10,6 @@ from src.services.user_service import change_password, insert_address
 from src.dependencies import get_db
 from src.middlewares.auth_jwt import JWTCustom
 from src.dependency_injection.containers import Container
-from src.logging.mongo_logging import MongoLogger
 import src.services.user_service as uSvc
 
 oauth2_scheme = JWTCustom(tokenUrl="/auth/sign-in")
@@ -18,7 +18,7 @@ router = APIRouter(
     dependencies=[Depends(oauth2_scheme)],
     prefix="/admin")
 db_dependency = Annotated[AsyncDatabase, Depends(get_db)]
-log_dependency = Annotated[MongoLogger, Depends(Provide[Container.logging])]
+log_dependency = Annotated[log2mongo, Depends(Provide[Container.logging])]
 
 @router.get("/user", response_model=User)
 @inject

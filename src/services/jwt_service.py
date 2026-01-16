@@ -2,15 +2,15 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 from dependency_injector.wiring import Provide, inject
 from fastapi import HTTPException, Request
+from log2mongo import log2mongo
 from dotenv import load_dotenv
 import os, jwt
 
 from src.services.crypto_service import CryptoService
-from src.logging.mongo_logging import MongoLogger
 from src.dependency_injection.containers import Container
 
 crypto_service: CryptoService = Provide[Container.crypto_service]
-log_service: MongoLogger = Provide[Container.logging]
+log_service: log2mongo = Provide[Container.logging]
 load_dotenv()
 
 @inject

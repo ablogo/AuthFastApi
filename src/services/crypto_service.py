@@ -4,13 +4,12 @@ from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 import base64
-
-from src.logging.mongo_logging import MongoLogger
+from log2mongo import log2mongo
 
 class CryptoService:
     
     #@inject
-    def __init__(self, log: MongoLogger) -> None:
+    def __init__(self, log: log2mongo) -> None:
         self.private_key = self.get_private_key()
         self.public_key = self.get_public_key()
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

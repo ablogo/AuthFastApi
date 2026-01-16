@@ -1,14 +1,14 @@
 from dependency_injector.wiring import Provide, inject
+from log2mongo import log2mongo
 
 from src.services.user_service import get_user
 from src.services.jwt_service import create_token
 from src.models.token_model import Token
 from src.services.crypto_service import CryptoService
-from src.logging.mongo_logging import MongoLogger
 from src.dependency_injection.containers import Container
 
 crypto_service: CryptoService = Provide[Container.crypto_service]
-logger: MongoLogger = Provide[Container.logging]
+logger: log2mongo = Provide[Container.logging]
 
 @inject
 async def login(username: str, password: str, db, crypto = crypto_service, log = logger):

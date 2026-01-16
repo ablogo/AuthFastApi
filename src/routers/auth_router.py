@@ -3,13 +3,13 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from dependency_injector.wiring import Provide, inject
+from log2mongo import log2mongo
 
 from src.middlewares.auth_jwt import JWTCustom
 from src.models.sign_up_model import SignUp
 from src.models.user_model import User
 from src.services.mongodb_service import MongoAsyncService
 from src.dependency_injection.containers import Container
-from src.logging.mongo_logging import MongoLogger
 from src.services.login_service import login
 from src.services.user_service import create_user
 
@@ -19,7 +19,7 @@ router = APIRouter(
     )
 oauth2_scheme = JWTCustom(tokenUrl="/auth/sign-in")
 db_dependency = Annotated[MongoAsyncService, Depends(Provide[Container.database_client])]
-log_dependency = Annotated[MongoLogger, Depends(Provide[Container.logging])]
+log_dependency = Annotated[log2mongo, Depends(Provide[Container.logging])]
 
 @router.post("/sign-up")
 @inject

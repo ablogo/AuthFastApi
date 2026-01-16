@@ -17,3 +17,4 @@ class JWTCustom(OAuth2PasswordBearer):
                 return email
         except Exception as e:
             raise e
+        
