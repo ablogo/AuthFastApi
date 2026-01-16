@@ -2,6 +2,7 @@ pip
 fastapi
 uvicorn[standard]
 pymongo[srv]
+log2mongo
 python-dotenv
 python-multipart
 pyjwt
