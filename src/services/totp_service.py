@@ -14,26 +14,28 @@ class TOTP(OTP):
         self.log = log
         super().__init__()
 
-    async def at(self, for_time: Union[int, datetime], secret: Optional[str] = None, time_window: int = 0) -> str:
+    async def at(self, for_time: Union[int, datetime], secret: Optional[str] = None, time_window: int = 0, is_value_ascii: bool = False, is_value_hex: bool = False) -> str:
         otp = ""
         try:
-            secret = self.secret if secret is None else secret
+            secret = secret if secret else self.secret
             if isinstance(for_time, int):
                 for_time = self.to_unix_time(datetime.fromtimestamp(for_time))
-            otp = self.generate_OPT(secret, self.to_unix_time(for_time), self.return_digits, self.digest)
+            otp = self.generate_OPT(secret, self.to_unix_time(for_time), self.return_digits, self.digest, is_value_ascii, is_value_hex)
         except Exception as e:
             self.log.logger.error(e)
         return otp
     
-    async def now(self, secret: Optional[str] = None) -> str:
-        return self.generate_OPT(self.secret if secret is None else secret, self.to_unix_time(datetime.now()), self.return_digits, self.digest)
+    async def now(self, secret: Optional[str] = None, is_value_ascii: bool = False, is_value_hex: bool = False) -> str:
+        print(f'ascii: {is_value_ascii}')
+        print(f'secret: {secret}')
+        return self.generate_OPT(secret if secret else self.secret, self.to_unix_time(datetime.now()), self.return_digits, self.digest, is_value_ascii, is_value_hex)
     
-    async def verify(self, otp_to_validate: str, secret: Optional[str] = None, for_time: Optional[datetime] = None, time_window: int = 0) -> bool:
+    async def verify(self, otp_to_validate: str, secret: Optional[str] = None, for_time: Optional[datetime] = None, time_window: int = 0, is_value_ascii: bool = False, is_value_hex: bool = False) -> bool:
         result = False
         try:
             secret = self.secret if secret is None else secret
             for_time = datetime.now() if for_time is None else for_time
-            otp = await self.at(for_time, secret, time_window)
+            otp = await self.at(for_time, secret, time_window, is_value_ascii, is_value_hex)
             if otp_to_validate == otp:
                 result = True
         except Exception as e:

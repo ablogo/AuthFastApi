@@ -61,7 +61,7 @@ async def update_password(db: db_dependency, password: str, email: Annotated[str
 @router.get("/user/2fa")
 @inject
 async def get_2f_code(email: Annotated[str, Depends(oauth2_scheme)], totp: totp_dependency):
-    totp_code = await totp.now(email)
+    totp_code = await totp.now(email, is_value_ascii = True)
     if totp_code:
         return Response(content=totp_code, media_type="plain/text")
     else:
@@ -70,7 +70,7 @@ async def get_2f_code(email: Annotated[str, Depends(oauth2_scheme)], totp: totp_
 @router.get("/user/2fa-verify")
 @inject
 async def get_2f_code_verify(code: str, email: Annotated[str, Depends(oauth2_scheme)], totp: totp_dependency):
-    if await totp.verify(code, email):
+    if await totp.verify(code, email, is_value_ascii = True):
         return Response(status_code=200)
     else:
         return Response(status_code=401)

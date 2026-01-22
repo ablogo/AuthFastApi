@@ -8,7 +8,7 @@ from src.models.user_model import User
 from src.models.address_model import Address
 from src.services.user_service import change_password, insert_address
 from src.dependencies import get_db
-from src.middlewares.auth_jwt import JWTCustom
+from src.middlewares.auth_roles_jwt import JWTCustom
 from src.dependency_injection.containers import Container
 import src.services.user_service as uSvc
 
