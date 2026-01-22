@@ -23,7 +23,7 @@ async def create_token(data: dict, expire_time: timedelta = timedelta(minutes=in
                     data[item][x] = data[item][x] #await crypto.encrypt_text(data[item][x])
             else:
                 data[item] = await crypto.encrypt_text(data[item])
-             
+
         expire = datetime.now(timezone.utc) + expire_time
         data.update({ "exp": expire })
         encode_jwt = jwt.encode(data, str(os.environ["JWT_SECRET_KEY"]), algorithm= os.environ["JWT_ALGORITHM"])
@@ -36,8 +36,7 @@ async def create_token(data: dict, expire_time: timedelta = timedelta(minutes=in
 async def verify_token(token: str, crypto = crypto_service, log = log_service):
         try:
             payload = await verify(token)
-            email = await crypto.decrypt_text(payload.get("sub"))
-            return email
+            return await crypto.decrypt_text(payload.get("sub"))
         except Exception as e:
             log.logger.error(e)
             raise e
@@ -54,7 +53,7 @@ async def verify_token_and_roles(token: str, required_roles: Optional[list[str]]
                     return email
                 else:
                     raise HTTPException(status_code=401, detail="Insufficient permissions")
-                
+
         except Exception as e:
             log.logger.error(e)
             raise e
@@ -68,11 +67,10 @@ async def verify_token_from_requests(request: Request):
                 payload = await verify(request_token)
                 email = await crypto_service.decrypt_text(payload.get("sub"))
             return email
-            
         except Exception as e:
             #log.logger.error(e)
             raise e
-        
+
 @inject
 async def verify(request_token: str, log = log_service):
         try:
@@ -89,13 +87,10 @@ async def verify(request_token: str, log = log_service):
             raise e
 
 @inject
-async def get_email(token, crypto = crypto_service, log = log_service):
+async def get_email(token: str, crypto = crypto_service, log = log_service):
     try:
         payload = jwt.decode(token, str(os.environ["JWT_SECRET_KEY"]), os.environ["JWT_ALGORITHM"])
-        email = await crypto.decrypt_text(payload.get("sub"))
-        if email is None:
-            return None
+        return await crypto.decrypt_text(payload.get("sub"))
     except Exception as e:
         log.logger.error(e)
-    else:
-        return email
+        raise e

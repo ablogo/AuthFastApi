@@ -15,8 +15,8 @@ totp_dependency = Annotated[securitySvc.TOTP, Depends(Provide[Container.totp])]
 
 @router.get("/2fa-now")
 @inject
-async def get_2f_code(totp: totp_dependency, email: Optional[str] = None):
-    totp_code = await totp.now(email)
+async def get_2f_code(totp: totp_dependency, secret: Optional[str] = None):
+    totp_code = await totp.now(secret)
     if totp_code:
         return Response(content=totp_code, media_type="plain/text")
     else:
@@ -24,8 +24,8 @@ async def get_2f_code(totp: totp_dependency, email: Optional[str] = None):
 
 @router.get("/2fa-at")
 @inject
-async def get_2f_code_at(time: int, totp: totp_dependency, email: Optional[str] = None):
-    otp_code = await totp.at(time, email)
+async def get_2f_code_at(time: int, totp: totp_dependency, secret: Optional[str] = None):
+    otp_code = await totp.at(time, secret)
     if otp_code:
         return Response(content=otp_code, media_type="plain/text")
     else:
@@ -33,8 +33,8 @@ async def get_2f_code_at(time: int, totp: totp_dependency, email: Optional[str] 
 
 @router.get("/2fa-verify")
 @inject
-async def get_2f_code_verify(code: str, totp: totp_dependency, email: Optional[str] = None):
-    result = await totp.verify(code, email)
+async def get_2f_code_verify(code: str, totp: totp_dependency, secret: Optional[str] = None):
+    result = await totp.verify(code, secret)
     if result:
         return Response(status_code=200)
     else:
