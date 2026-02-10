@@ -31,7 +31,7 @@ async def get_user(db: db_dependency, email: Annotated[str, Depends(verify_token
 @router.post("/user/img", response_model_by_alias = False)
 @inject
 async def add_user_image(file: UploadFile, db: db_dependency, email: Annotated[str, Depends(verify_token_from_requests)]):
-    result = await uSvc.add_user_picture(file, file.content_type, email, db.get_db())
+    result = await uSvc.add_user_picture(email, db.get_db(), file = file, content_type = file.content_type)
     if result:
         return JSONResponse("", status.HTTP_200_OK)
     else:

@@ -94,3 +94,12 @@ async def get_email(token: str, crypto = crypto_service, log = log_service):
     except Exception as e:
         log.logger.error(e)
         raise e
+    
+@inject
+async def get_token_unverify_signature_data(token: str, crypto = crypto_service, log = log_service):
+    try:
+        payload = jwt.decode(token, options = {"verify_signature" : False})
+        return payload
+    except Exception as e:
+        log.logger.error(e)
+        raise e

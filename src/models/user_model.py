@@ -27,6 +27,7 @@ class User(BaseModel):
     twofactor_enabled: bool = False
     roles: Optional[List[str]] = list()
     address: Optional[List[Address]] = list()
+    issuer: Optional[str] = None
     online: bool = False
     disabled: bool = False
     created_at: datetime = datetime.now()

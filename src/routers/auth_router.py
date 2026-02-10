@@ -16,7 +16,7 @@ from src.services.user_service import create_user
 router = APIRouter(
     tags=["auth"],
     prefix="/auth"
-    )
+)
 oauth2_scheme = JWTCustom(tokenUrl="/auth/sign-in")
 db_dependency = Annotated[MongoAsyncService, Depends(Provide[Container.database_client])]
 log_dependency = Annotated[log2mongo, Depends(Provide[Container.logging])]
@@ -29,8 +29,14 @@ async def sign_up(model: SignUp, db: db_dependency, log: log_dependency, request
         log.logger.info(f"{ model.email } sign-up from ip: { client_host }")
         content = ""
         status_code = 0
-        user = await create_user(db.database, User(name= model.name, email= model.email, password= model.password, disabled=False))
-        if user is not None:
+        user = await create_user(db.database, User(
+            name = model.name,
+            email = model.email,
+            password = model.password,
+            issuer = '',
+            disabled = False)
+        )
+        if user:
             content = user.model_dump_json()
             status_code = status.HTTP_200_OK
         else:
@@ -51,7 +57,7 @@ async def sign_in(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db
         content = None
         status_code = status.HTTP_401_UNAUTHORIZED
         result, token = await login(form_data.username, form_data.password, db.database)
-        if token is not None:
+        if token:
             content = token.model_dump()
             status_code = status.HTTP_200_OK
         elif result and token is None:
@@ -67,9 +73,9 @@ async def sign_in(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db
 async def validate_token(log: log_dependency, email: Annotated[str, Depends(oauth2_scheme)]):
     try:
         status_code = status.HTTP_401_UNAUTHORIZED
-        if email is not None:
+        if email:
             status_code = status.HTTP_200_OK
     except Exception as e:
         log.logger.error(e)
     finally:
-        return Response(email, status_code, media_type="text/plain")
+        return Response(email, status_code, media_type = "text/plain")

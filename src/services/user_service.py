@@ -55,30 +55,49 @@ async def get_users(db: AsyncDatabase, log = log_service) -> list[User] | None:
         return users
     
 @inject
-async def add_user_picture(file: UploadFile, content_type: str | None, email: str, db: AsyncDatabase, log = log_service) -> bool:
+async def add_user_picture(email: str, db: AsyncDatabase, file: UploadFile | None = None, pic_url: str | None = None, content_type: str | None = None, log = log_service) -> bool:
     try:
         result = False
         user_bd = await db[users_collection].find_one({'email': email})
-        if user_bd is not None:
-            user_pic = UserPicture(
-                id = user_bd["_id"],
-                content_type = content_type
-            )
-            img = await file.read()
+
+        if user_bd:
             user_picture = await db[users_pics_collection].find_one({'_id': user_bd["_id"]})
-            
-            if user_picture is not None:
-                query_filter = {"_id": user_bd["_id"]}
-                update_op = {"$set" : {"picture" : Binary(img), "content_type": content_type }}
-                op_result = await db[users_pics_collection].update_one(query_filter, update_op)
-                
-                if op_result.modified_count > 0:
-                    result = True
-            else:
-                user_pic.picture = Binary(img)
-                op_result = await db[users_pics_collection].insert_one(user_pic.model_dump(by_alias=True))
-                if op_result.inserted_id is not None:
-                    result = True
+            user_pic = UserPicture(
+                id = user_bd["_id"]
+            )
+
+            if file:
+                content_type = content_type
+                img = await file.read()
+                                
+                if user_picture is not None:
+                    query_filter = {"_id": user_bd["_id"]}
+                    update_op = {"$set" : {"picture" : Binary(img), "content_type": content_type, "picture_url": "" }}
+                    op_result = await db[users_pics_collection].update_one(query_filter, update_op)
+                    
+                    if op_result.modified_count > 0:
+                        result = True
+                else:
+                    user_pic.picture = Binary(img)
+                    op_result = await db[users_pics_collection].insert_one(user_pic.model_dump(by_alias=True))
+                    
+                    if op_result.inserted_id is not None:
+                        result = True
+            elif pic_url:
+                if user_picture is not None:
+                    query_filter = {"_id": user_bd["_id"]}
+                    update_op = {"$set" : {"picture_url" : pic_url, "content_type": 'text/plain', "picture": None }}
+                    op_result = await db[users_pics_collection].update_one(query_filter, update_op)
+                    
+                    if op_result.modified_count > 0:
+                        result = True
+                else:
+                    user_pic.picture_url = pic_url
+                    op_result = await db[users_pics_collection].insert_one(user_pic.model_dump(by_alias=True))
+                    
+                    if op_result.inserted_id is not None:
+                        result = True
+
     except Exception as e:
         log.logger.error(e)
     finally:
