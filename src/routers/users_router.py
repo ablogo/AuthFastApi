@@ -9,14 +9,16 @@ from src.models.user_model import User
 from src.models.address_model import Address
 from src.dependency_injection.containers import Container
 from src.services.mongodb_service import MongoAsyncService
-from src.services.user_service import change_password, insert_address
+from src.services.user_service import change_password, insert_address, get_address
 from src.services.jwt_service import verify_token_from_requests
 from src.services.totp_service import TOTP
 import src.services.user_service as uSvc
 from src.dependencies import get_db
 
 oauth2_scheme = JWTCustom(tokenUrl="/auth/sign-in")
-router = APIRouter(tags=["users"], dependencies=[Depends(oauth2_scheme)])
+router = APIRouter(
+    tags=["users"],
+    dependencies=[Depends(oauth2_scheme)])
 #db_dependency = Annotated[AsyncDatabase, Depends(get_db)]
 db_dependency = Annotated[MongoAsyncService, Depends(Provide[Container.database_client])]
 totp_dependency = Annotated[TOTP, Depends(Provide[Container.totp])]
@@ -52,7 +54,7 @@ async def update_user(db: db_dependency, model: User, email: Annotated[str, Depe
     result = await uSvc.update_user(db.get_db(), model)
     return result
 
-@router.get("/user/change-password")
+@router.post("/user/change-password")
 @inject
 async def update_password(db: db_dependency, password: str, email: Annotated[str, Depends(oauth2_scheme)]):
     result = await change_password(db.get_db(), email, password)
@@ -78,7 +80,13 @@ async def get_2f_code_verify(code: str, email: Annotated[str, Depends(oauth2_sch
 @router.post("/user/address")
 @inject
 async def create_address(db: db_dependency, address: Address, email: Annotated[str, Depends(oauth2_scheme)]):
-    result = await insert_address(db.get_db(), email, address)
+    result = await insert_address(email, address, db.get_db())
+    return result
+
+@router.get("/user/address")
+@inject
+async def get_addresses(db: db_dependency, email: Annotated[str, Depends(oauth2_scheme)] ) -> list[Address] | None:
+    result = await get_address(db.get_db(), email)
     return result
 
 @router.put("/user/address")
