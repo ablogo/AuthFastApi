@@ -17,6 +17,7 @@ class Container(containers.DeclarativeContainer):
             "src.routers.users_router",
             "src.routers.admin.users_router",
             "src.routers.admin.security_router",
+            "src.routers.oauth2_router",
             "src.services.user_service",
             "src.services.login_service",
             "src.services.jwt_service",

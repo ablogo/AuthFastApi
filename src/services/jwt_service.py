@@ -96,7 +96,7 @@ async def get_email(token: str, crypto = crypto_service, log = log_service):
         raise e
     
 @inject
-async def get_token_unverify_signature_data(token: str, crypto = crypto_service, log = log_service):
+async def get_token_claims_unverify_signature(token: str, crypto = crypto_service, log = log_service):
     try:
         payload = jwt.decode(token, options = {"verify_signature" : False})
         return payload

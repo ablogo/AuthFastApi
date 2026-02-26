@@ -6,7 +6,7 @@ from log2mongo import log2mongo
 
 from src.middlewares.auth_jwt import JWTCustom
 from src.models.user_model import User
-from src.services.jwt_service import get_token_unverify_signature_data
+from src.services.jwt_service import get_token_claims_unverify_signature
 from src.services.mongodb_service import MongoAsyncService
 from src.dependency_injection.containers import Container
 from src.services.login_service import external_login
@@ -54,7 +54,7 @@ async def get_google_response(db: db_dependency, log: log_dependency, request: R
         google_token = await get_auth_response(request.url.__str__())
         
         if google_token:
-            token_data = await get_token_unverify_signature_data(google_token.id_token.__str__()) # type: ignore
+            token_data = await get_token_claims_unverify_signature(google_token.id_token.__str__()) # type: ignore
             user = await get_user(token_data['email'], db.get_db())
 
             if user is None:

@@ -13,7 +13,7 @@ async def get_auth_url(log = log_service):
     try:
         flow = google_auth_oauthlib.flow.Flow.from_client_config(
             {"web":{"client_id":os.environ["GOOGLE_OAUTH_CLIENT"],"project_id":os.environ["GOOGLE_OAUTH_ID"],"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":os.environ["GOOGLE_OAUTH_SECRET"],"javascript_origins":os.environ["GOOGLE_OAUTH_JS_ORIGINS"].split(',') if os.environ["GOOGLE_OAUTH_JS_ORIGINS"] else []}},
-            scopes = ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile', 'openid']
+            scopes = os.environ["GOOGLE_OAUTH_SCOPES"].split(',') if os.environ["GOOGLE_OAUTH_SCOPES"] else []
         )
         flow.redirect_uri = os.environ["GOOGLE_OAUTH_REDIRECT_RESPONSE"]
 
@@ -34,7 +34,7 @@ async def get_auth_response(url: str, log = log_service):
         credentials = None
         flow = google_auth_oauthlib.flow.Flow.from_client_config(
             {"web":{"client_id":os.environ["GOOGLE_OAUTH_CLIENT"],"project_id":os.environ["GOOGLE_OAUTH_ID"],"auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":os.environ["GOOGLE_OAUTH_SECRET"],"javascript_origins":os.environ["GOOGLE_OAUTH_JS_ORIGINS"].split(',') if os.environ["GOOGLE_OAUTH_JS_ORIGINS"] else []}},
-            scopes = ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile', 'openid']
+            scopes = os.environ["GOOGLE_OAUTH_SCOPES"].split(',') if os.environ["GOOGLE_OAUTH_SCOPES"] else []
         )
         flow.redirect_uri = os.environ["GOOGLE_OAUTH_REDIRECT_RESPONSE"]
 
