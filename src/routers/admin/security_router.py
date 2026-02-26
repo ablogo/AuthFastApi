@@ -4,6 +4,7 @@ from dependency_injector.wiring import Provide, inject
 
 from src.dependency_injection.containers import Container
 from src.middlewares.auth_roles_jwt import JWTCustom
+from src.models.totp_model import TOTPOptions
 import src.services.totp_service as securitySvc
 
 oauth2_scheme = JWTCustom(tokenUrl="/auth/sign-in")
@@ -13,10 +14,11 @@ router = APIRouter(
     prefix="/security")
 totp_dependency = Annotated[securitySvc.TOTP, Depends(Provide[Container.totp])]
 
-@router.get("/2fa-now")
+@router.get("/2fa-now/{options}")
 @inject
-async def get_2f_code(totp: totp_dependency, secret: Optional[str] = None):
-    totp_code = await totp.now(secret)
+async def get_2f_code(totp: totp_dependency, options: TOTPOptions, secret: Optional[str] = None):
+    is_ascii = True if options is TOTPOptions.ascii else False
+    totp_code = await totp.now(secret, is_ascii)
     if totp_code:
         return Response(content=totp_code, media_type="plain/text")
     else:
