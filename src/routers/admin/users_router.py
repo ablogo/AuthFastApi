@@ -69,8 +69,7 @@ async def update_user(model: User, db: db_dependency, log: log_dependency, respo
 @inject
 async def delete_user(email: str, db: db_dependency, log: log_dependency, response: Response):
     try:
-        result = await uSvc.deleted_user(db, email)
-        if result:
+        if await uSvc.deleted_user(db, email):
             response.status_code = 200
             return
         response.status_code = 400
@@ -81,8 +80,7 @@ async def delete_user(email: str, db: db_dependency, log: log_dependency, respon
 @inject
 async def update_password(email: str, password: str, db: db_dependency, log: log_dependency, response: Response):
     try:
-        result = await change_password(db, email, password)
-        if result:
+        if await change_password(db, email, password):
             response.status_code = 200
             return
         response.status_code = 400
@@ -91,10 +89,12 @@ async def update_password(email: str, password: str, db: db_dependency, log: log
 
 @router.post("/users/address")
 @inject
-async def create_address(email: str, address: Address, db: db_dependency, log: log_dependency):
+async def create_address(email: str, address: Address, db: db_dependency, log: log_dependency, response: Response) -> Address | None:
     try:
         new_address = await insert_address(email, address, db)
-        return new_address
+        if new_address:
+            return new_address
+        response.status_code = 400
     except Exception as e:
         log.logger.error(e)
 
@@ -105,7 +105,7 @@ async def get_addresses(email: str, db: db_dependency, log: log_dependency, resp
         addresses = await get_address(db, email)
         if addresses:
             return addresses
-        response.status_code = 400
+        response.status_code = 404
     except Exception as e:
         log.logger.error(e)
 
@@ -113,9 +113,9 @@ async def get_addresses(email: str, db: db_dependency, log: log_dependency, resp
 @inject
 async def update_address(email: str, address: Address, db: db_dependency, log: log_dependency, response: Response):
     try:
-        result = await uSvc.update_address(db, email, address)
-        if result:
+        if await uSvc.update_address(db, email, address):
             response.status_code = 200
-        response.status_code = 404
+            return
+        response.status_code = 400
     except Exception as e:
         log.logger.error(e)

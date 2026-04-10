@@ -10,7 +10,7 @@ class OTP():
 
     def to_bytes(self, value: str, is_value_ascii: bool = False, is_value_hex: bool = False):
         if is_value_ascii:
-            return value.encode('ascii')
+            return value.encode()
         elif is_value_hex:
             return bytes(bytearray.fromhex(value))
         else:

@@ -40,11 +40,18 @@ __pycache__/
 *py.cover
 
 #Js
-*node_modules
+package-lock.json
 
 #VSCode
 *.vs
 *.vscode
+
+#Expo
+.expo
+
+#npm
+*node_modules
+dist/
 
 # Visual Studio
 *appsettings.Development.json

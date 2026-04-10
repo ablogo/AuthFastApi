@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,4 +48,4 @@ app.include_router(oauth2_router.router)
 #Root route
 @app.get("/")
 async def main():
-    return { "message": "Learning python" }
+    return datetime.now()
