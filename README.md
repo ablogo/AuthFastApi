@@ -9,7 +9,7 @@ It is a microservice for user administration and authenication, using JWT tokens
 - Google account and activate [Google cloud](https://console.cloud.google.com) to obtain OAuth2 config values (Optional)
 
 > [!IMPORTANT]
-> It is necessary to complete the configuration file(.env), and create the PEM files and place them in the root folder
+> It is necessary to complete the configuration file(.env), create the PEM files and place them in the root folder
 
 ## Installing
 1. Create a virtual environment
@@ -20,7 +20,7 @@ python -m venv .venv
 ```bash
 source .venv/bin/activate
 ```
-   Activate it (Windows PowerShell)
+   (Windows PowerShell)
 ```bash
 .venv\Scripts\Activate.ps1
 ```
@@ -53,7 +53,6 @@ http://127.0.0.1:8000/docs
 ```
 
 ## Using with Docker
-
 1. Create the image
 ```bash
 docker build -t auth-service:latest .
@@ -65,6 +64,27 @@ docker pull ghcr.io/ablogo/authfastapi:latest
 2. Run a container from the image previously created
 ```bash
 docker run -p 8000:80 --env-file .env auth-service:latest
+```
+
+## Google OAuth2
+To implement this auth system, you need to obtain OAuth 2.0 credentials from the Google API Console.
+
+[Follow the steps on this page to obtain the credentials](https://developers.google.com/identity/protocols/oauth2)
+
+Once you have done this, you must place those values in the .env file.
+
+```bash
+GOOGLE_OAUTH_ID=
+GOOGLE_OAUTH_CLIENT=
+GOOGLE_OAUTH_SECRET=
+```
+
+The following values should be customized based on your development, the scopes that you need and the links on your site.
+
+```bash
+GOOGLE_OAUTH_REDIRECT_RESPONSE=https://127.0.0.1:8000/auth/google-response
+GOOGLE_OAUTH_JS_ORIGINS=http://127.0.0.1:8000,http://localhost:8081
+GOOGLE_OAUTH_SCOPES=https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/userinfo.profile,openid
 ```
 
 > [!NOTE]
