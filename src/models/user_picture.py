@@ -9,6 +9,7 @@ class UserPicture(BaseModel):
     id: Optional[PyObjectId] = Field(default= None, serialization_alias="_id")
     content_type: str | None = None
     picture: Optional[bytes] = None
+    picture_url: Optional[str] = None
     created_at: datetime = datetime.now()
     updated_at: Optional[datetime] = None
 

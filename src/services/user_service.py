@@ -55,30 +55,49 @@ async def get_users(db: AsyncDatabase, log = log_service) -> list[User] | None:
         return users
     
 @inject
-async def add_user_picture(file: UploadFile, content_type: str | None, email: str, db: AsyncDatabase, log = log_service) -> bool:
+async def add_user_picture(email: str, db: AsyncDatabase, file: UploadFile | None = None, pic_url: str | None = None, content_type: str | None = None, log = log_service) -> bool:
     try:
         result = False
         user_bd = await db[users_collection].find_one({'email': email})
-        if user_bd is not None:
-            user_pic = UserPicture(
-                id = user_bd["_id"],
-                content_type = content_type
-            )
-            img = await file.read()
+
+        if user_bd:
             user_picture = await db[users_pics_collection].find_one({'_id': user_bd["_id"]})
-            
-            if user_picture is not None:
-                query_filter = {"_id": user_bd["_id"]}
-                update_op = {"$set" : {"picture" : Binary(img), "content_type": content_type }}
-                op_result = await db[users_pics_collection].update_one(query_filter, update_op)
-                
-                if op_result.modified_count > 0:
-                    result = True
-            else:
-                user_pic.picture = Binary(img)
-                op_result = await db[users_pics_collection].insert_one(user_pic.model_dump(by_alias=True))
-                if op_result.inserted_id is not None:
-                    result = True
+            user_pic = UserPicture(
+                id = user_bd["_id"]
+            )
+
+            if file:
+                content_type = content_type
+                img = await file.read()
+                                
+                if user_picture is not None:
+                    query_filter = {"_id": user_bd["_id"]}
+                    update_op = {"$set" : {"picture" : Binary(img), "content_type": content_type, "picture_url": "" }}
+                    op_result = await db[users_pics_collection].update_one(query_filter, update_op)
+                    
+                    if op_result.modified_count > 0:
+                        result = True
+                else:
+                    user_pic.picture = Binary(img)
+                    op_result = await db[users_pics_collection].insert_one(user_pic.model_dump(by_alias=True))
+                    
+                    if op_result.inserted_id is not None:
+                        result = True
+            elif pic_url:
+                if user_picture is not None:
+                    query_filter = {"_id": user_bd["_id"]}
+                    update_op = {"$set" : {"picture_url" : pic_url, "content_type": 'text/plain', "picture": None }}
+                    op_result = await db[users_pics_collection].update_one(query_filter, update_op)
+                    
+                    if op_result.modified_count > 0:
+                        result = True
+                else:
+                    user_pic.picture_url = pic_url
+                    op_result = await db[users_pics_collection].insert_one(user_pic.model_dump(by_alias=True))
+                    
+                    if op_result.inserted_id is not None:
+                        result = True
+
     except Exception as e:
         log.logger.error(e)
     finally:
@@ -187,9 +206,9 @@ async def change_password(db: AsyncDatabase, email: str, new_password: str, cryp
         return result
     
 @inject
-async def insert_address(db: AsyncDatabase, email: str, address: Address, log = log_service) -> bool:
+async def insert_address(email: str, address: Address, db: AsyncDatabase, log = log_service) -> Address | None:
     try:
-        result = False
+        result = None
         user_db = await db[users_collection].find_one({'email': email})
 
         if user_db is not None:
@@ -201,7 +220,7 @@ async def insert_address(db: AsyncDatabase, email: str, address: Address, log = 
             updated_result = await db[users_collection].update_one(query_filter, update_op)
 
             if updated_result.modified_count > 0:
-                result = True
+                result = address
 
     except Exception as e:
         log.logger.error(e)
@@ -209,29 +228,34 @@ async def insert_address(db: AsyncDatabase, email: str, address: Address, log = 
         return result
     
 @inject
+async def get_address(db: AsyncDatabase, email: str, log = log_service) -> list[Address] | None:
+    try:
+        addresses = None
+        query = {'email': email}
+        projection = {"address": 1, "_id": 0}
+        result = await db[users_collection].find_one(query, projection)
+        addresses = result["address"] # type: ignore
+
+    except Exception as e:
+        log.logger.error(e)
+    finally:
+        return addresses
+    
+@inject
 async def update_address(db: AsyncDatabase, email: str, address: Address, log = log_service) -> bool:
     try:
         result = False
-        user_db = await db[users_collection].find_one(
-            {"email": email },
-            {"address": { "$elemMatch": { "_id": ObjectId(address.id) } } })
-
-        if user_db is not None:
-            user_db = user_db["address"]
-            m = address.model_dump(exclude={"id"})
-            update_fields= {}
-            for key, value in m:
-                if key in user_db and user_db[key] != value:
-                    update_fields[key]= value
-                elif key not in user_db:
-                    update_fields[key]= value
-
-            query_filter = {"email": email, "address.id": address.id }
-            update_op = {"$set" : {"address" : address.model_dump() }}
-            updated_result = await db[users_collection].update_one(query_filter, update_op)
-
-            if updated_result.modified_count > 0:
-                result = True
+        updated_address = address.model_dump()
+        id = updated_address.pop("id")
+        updated_address.update({ "_id": id })
+        
+        query_filter = {"email": email, "address._id": address.id }
+        update_op = {"$set" : {"address.$[elem]" : address.model_dump() }}
+        array_filter = [{"elem._id": address.id}]
+        updated_result = await db[users_collection].update_one(query_filter, update_op, array_filters = array_filter)
+        
+        if updated_result.matched_count > 0 or updated_result.modified_count > 0:
+            result = True
 
     except Exception as e:
         log.logger.error(e)

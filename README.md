@@ -6,6 +6,7 @@ It is a microservice for user administration and authenication, using JWT tokens
 ## Requirements
 - Python 3.12+
 - FastApi 0.124+
+- Google account and activate [Google cloud](https://console.cloud.google.com) to obtain OAuth2 config values (Optional)
 
 > [!IMPORTANT]
 > It is necessary to complete the configuration file(.env), and create the PEM files and place them in the root folder
@@ -40,7 +41,7 @@ openssl rsa -in private_key.pem -pubout -out public_key.pem
 ```
 5. Set configuration file (.env)
 
-The microservice uses mongoDB as its database, so the connection string and other configurations (mongodb, JWT, CORS, logs) must be included
+The microservice uses mongoDB as its database, so the connection string and other configurations (mongodb, JWT, CORS, logs, Google OAuth2) must be included
 
 6. Run local development server
 ```bash
@@ -67,4 +68,4 @@ docker run -p 8000:80 --env-file .env auth-service:latest
 ```
 
 > [!NOTE]
-> Since the project is used for learning, it does not strictly follow the concept of microservices, where each microservice should have its own realm of responsability
+> Since the project is used for learning, it does not strictly follow the concept of microservices, where each microservice should have its own realm of responsability and use different approaches.

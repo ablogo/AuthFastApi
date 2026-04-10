@@ -24,3 +24,15 @@ async def login(username: str, password: str, db, crypto = crypto_service, log =
     except Exception as e:
         log.logger.error(e)
     return False, None
+
+@inject
+async def external_login(username: str, issuer: str, db, crypto = crypto_service, log = logger):
+    try:
+        user = await get_user(username, db)
+        if user:
+            if user.issuer == issuer:
+                token = await create_token({ "sub": user.email, "name": user.name, "roles": user.roles })
+                return True, Token(access_token = token, token_type = "bearer")
+    except Exception as e:
+        log.logger.error(e)
+    return False, None
