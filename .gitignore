@@ -1,55 +1,59 @@
-#General
+# General
 *obj
 *bin
 *wwwroot
-*.code-workspace
-*.tmp
-*.tmp_proj
-*_wpftmp.csproj
-*.log
-.builds
-.cache
-*.pidb
-*.svclog
-*.scc
-*.pfx
 *.pem
 
-#Environment
+# Nestjs specific
+.next
+/dist
+/build
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# temp directory
+.temp
+.tmp
+
+# Environment files
 .env
 .venv
 env/
 venv/
 *.ini
 
-#Docker
+# Docker
 #*Dockerfile
 
-#Kubernetes
+# Kubernetes
 *kubernetes
 
-#.NET Core
+# .NET Core
 project.lock.json
 project.fragment.lock.json
 artifacts/
 
-#Python
+# Python
 __pycache__/
 *.manifest
 *.spec
 *py.cover
 
-#Js
-package-lock.json
-
-#VSCode
+# VSCode
 *.vs
 *.vscode
 
-#Expo
+# Expo
 .expo
 
-#npm
+# npm
 *node_modules
 dist/
 

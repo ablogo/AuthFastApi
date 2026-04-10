@@ -48,4 +48,9 @@ app.include_router(oauth2_router.router)
 #Root route
 @app.get("/")
 async def main():
+    return "Learning python"
+
+#Root route
+@app.get("/auth/health")
+async def health():
     return datetime.now()
