@@ -2,7 +2,7 @@
 *obj
 *bin
 *wwwroot
-*.pem
+#*.pem
 
 # Nestjs specific
 .next
