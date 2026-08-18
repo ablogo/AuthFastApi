@@ -29,6 +29,7 @@ async def sign_up(model: SignUp, db: db_dependency, log: log_dependency, request
         log.logger.info(f"{ model.email } sign-up from ip: { client_host }")
         content = ""
         status_code = 0
+        media_type = ""
         user = await create_user(db.database, User(
             name = model.name,
             email = model.email,
@@ -39,14 +40,16 @@ async def sign_up(model: SignUp, db: db_dependency, log: log_dependency, request
         if user:
             content = user.model_dump_json()
             status_code = status.HTTP_200_OK
+            media_type = "application/json"
         else:
             content = "Unable to create user"
             status_code = status.HTTP_400_BAD_REQUEST
+            media_type = "text/plain"
 
     except Exception as e:
         log.logger.error(e)
     finally:
-        return Response(content, status_code, media_type="application/json")
+        return Response(content, status_code, media_type = media_type)
 
 @router.post("/sign-in")
 @inject
@@ -56,17 +59,19 @@ async def sign_in(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db
         log.logger.info(f"{ form_data.username } login from ip: { client_host }")
         content = None
         status_code = status.HTTP_401_UNAUTHORIZED
+        media_type = "text/plain"
         result, token = await login(form_data.username, form_data.password, db.database)
         if token:
             content = token.model_dump()
             status_code = status.HTTP_200_OK
+            media_type = "application/json"
         elif result and token is None:
             status_code = status.HTTP_412_PRECONDITION_FAILED
 
     except Exception as e:
         log.logger.error(e)
     finally:
-        return JSONResponse(content, status_code)
+        return Response(content, status_code, media_type = media_type)
     
 @router.post("/validate-token")
 @inject

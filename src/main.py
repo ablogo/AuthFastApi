@@ -51,6 +51,6 @@ async def main():
     return "Learning python"
 
 #Root route
-@app.get("/auth/health")
+@app.get("/health")
 async def health():
     return datetime.now()
