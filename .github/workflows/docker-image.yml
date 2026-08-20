@@ -1,15 +1,25 @@
 name: Create and publish Docker image CI
 
 on:
+  push:
+    branches:
+      -  "main"
+    paths-ignore:
+      - 'README.md'
+      - '.gitignore'
+  workflow_dispatch:
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - 'README.md'
+      - '.gitignore'
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  push_to_register:
+  build-and-push:
     name: Push Docker image to github register
     runs-on: ubuntu-latest
     permissions:
@@ -19,24 +29,73 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v5
 
+      - name: Extract version
+        id: get-version
+        run: |
+          # Extract version from file
+          VERSION=$(awk -F'=' '/^__version__=/ {print $2}' ./src/__init__.py)
+
+          # Format version string for Docker tags
+          CLEAN_VERSION=$(echo "$VERSION" | sed 's/[^a-zA-Z0-9.]//g')
+
+          # Save to GitHub step outputs
+          echo "version=${CLEAN_VERSION}" >> $GITHUB_OUTPUT
+
+          echo "github.ref: ${{github.ref}}"
+          echo "github.ref_name: ${{github.ref_name}}"
+          echo "github.base_ref: ${{github.base_ref}}"
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        if: github.event_name == 'push' && github.ref_name == 'main'
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # Primary custom tag format: e.g., 1.2.4
+            type=raw,value=${{ steps.get-version.outputs.version }}
+            # Set latest tag for default branch
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+          flavor: |
+            latest=auto
+          labels: |
+            org.opencontainers.image.created={{date 'YYYYMMDD-HHmmss' tz='UTC'}}
+
+      - name: Extract metadata (tags, labels) PR
+        id: meta-pr
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # pull request event
+            type=ref,event=pr
+          labels: |
+            org.opencontainers.image.created={{date 'YYYYMMDD-HHmmss' tz='UTC'}}
+
       - name: Log in to the container registry
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GH_TOKEN }}
 
-      - name: Extract metadata (tags, labels)
-        id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
       - name: Build and push Docker image
         id: push
-        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+        if: github.event_name == 'push' && github.ref_name == 'main'
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push Docker image PR
+        id: push-pr
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta-pr.outputs.tags }}
+          labels: ${{ steps.meta-pr.outputs.labels }}
