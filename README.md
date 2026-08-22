@@ -5,7 +5,7 @@ It is a microservice for user administration and authenication, using JWT tokens
 
 ## Requirements
 - Python 3.12+
-- FastApi 0.124+
+- FastApi 0.141+
 - Google account and activate [Google cloud](https://console.cloud.google.com) to obtain OAuth2 config values (Optional)
 
 > [!IMPORTANT]
@@ -49,7 +49,7 @@ uvicorn src.main:app --reload
 ```
 7. Open the next url in a browser to see the Swagger UI
 ```bash
-http://127.0.0.1:8000/docs
+http://127.0.0.1:7010/docs
 ```
 
 ## Using with Docker
@@ -63,7 +63,7 @@ docker pull ghcr.io/ablogo/authfastapi:latest
 ```
 2. Run a container from the image previously created
 ```bash
-docker run -p 8000:80 --env-file .env auth-service:latest
+docker run -p 7010:80 --env-file .env auth-service:latest
 ```
 
 ## Google OAuth2

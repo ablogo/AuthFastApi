@@ -34,7 +34,6 @@ class Settings():
 
     def __init__(self) -> None:
         try:
-            print("init 1")
             self.DB_URL = os.environ["DB_URL"]
             self.DB_NAME = os.environ["DB_NAME"]
             self.DB_USERS_COLLECTION = os.environ["DB_USERS_COLLECTION"]
