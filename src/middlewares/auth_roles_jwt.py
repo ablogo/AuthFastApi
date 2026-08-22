@@ -1,5 +1,5 @@
 from typing import Dict
-from fastapi import HTTPException, Request
+from fastapi import Request
 from fastapi.security import OAuth2PasswordBearer
 
 from src.services.jwt_service import verify_token_and_roles

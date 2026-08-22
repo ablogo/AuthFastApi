@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from pymongo.asynchronous.database import AsyncDatabase
 
 from src.services.jwt_service import verify_token
-from src.services.mongodb_service import MongoService
 from src.custom_json import MJSONEncoder
 from src.models.product_model import Product
 from src.middlewares.auth_jwt import JWTCustom
@@ -46,7 +45,7 @@ async def list_items(token: Annotated[str, Depends(oauth2_scheme)], db: db_depen
     p = [(Product(**x)).dict() for x in products]
     return p
 
-# Route to add an item
+# Route to update an item
 @router.put("/products")
 async def update_item(product: Product, db: db_dependency):
     

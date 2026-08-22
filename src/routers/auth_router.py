@@ -1,7 +1,6 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi.responses import JSONResponse
 from dependency_injector.wiring import Provide, inject
 from log2mongo import log2mongo
 
@@ -28,8 +27,9 @@ async def sign_up(model: SignUp, db: db_dependency, log: log_dependency, request
         client_host = request.client.host # type: ignore
         log.logger.info(f"{ model.email } sign-up from ip: { client_host }")
         content = ""
-        status_code = 0
-        media_type = ""
+        status_code = status.HTTP_400_BAD_REQUEST
+        media_type = "application/json"
+        
         user = await create_user(db.database, User(
             name = model.name,
             email = model.email,
@@ -40,10 +40,8 @@ async def sign_up(model: SignUp, db: db_dependency, log: log_dependency, request
         if user:
             content = user.model_dump_json()
             status_code = status.HTTP_200_OK
-            media_type = "application/json"
         else:
             content = "Unable to create user"
-            status_code = status.HTTP_400_BAD_REQUEST
             media_type = "text/plain"
 
     except Exception as e:
@@ -62,7 +60,7 @@ async def sign_in(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db
         media_type = "text/plain"
         result, token = await login(form_data.username, form_data.password, db.database)
         if token:
-            content = token.model_dump()
+            content = token.model_dump_json()
             status_code = status.HTTP_200_OK
             media_type = "application/json"
         elif result and token is None:
