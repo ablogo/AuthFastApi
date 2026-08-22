@@ -2,8 +2,6 @@ from datetime import datetime
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
-import os
 
 from src.routers import auth_router, products_router, users_router, oauth2_router
 from src.routers.admin import users_router as admin_user_router, security_router
@@ -12,8 +10,8 @@ from src.middlewares.http_middleware import HttpMiddleware
 from src.dependency_injection.containers import Container
 from src.dependencies import close_db
 
-load_dotenv()
-origins = os.environ["CORS_ALLOWED_HOSTS"].split(',') if os.environ["CORS_ALLOWED_HOSTS"] else []
+container = Container()
+origins = container.config.d.CORS_ALLOWED_HOSTS().split(',') if container.config.d.CORS_ALLOWED_HOSTS() else []
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -29,7 +27,6 @@ async def shutdown():
     print("Website is shutting down!")
 
 app = FastAPI(lifespan=lifespan)
-container = Container()
 app.add_middleware(
     CORSMiddleware,
     allow_origins = origins,

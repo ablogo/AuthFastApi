@@ -1,13 +1,15 @@
 from dependency_injector import containers, providers
-import os
-from dotenv import load_dotenv
 from log2mongo import log2mongo
 
+from src.settings_validator import Settings
 from src.services import mongodb_service
 from src.services.crypto_service import CryptoService
 from src.services.totp_service import TOTP
 
-load_dotenv()
+#settings = Settings()
+
+#def get_settings():
+#    return settings
 
 class Container(containers.DeclarativeContainer):
 
@@ -25,19 +27,20 @@ class Container(containers.DeclarativeContainer):
             "src.services.totp_service",
             ])
 
-    #config = providers.Configuration(ini_files=["config.ini"])
+    #get_settings = providers.Callable(get_settings)
+    config = providers.Configuration(default={ "d": Settings().__dict__ })
 
     logging = providers.Singleton(
         log2mongo,
-        os.environ["LOG_DB_URL"], #config.log.db_url,
-        os.environ["LOG_DATABASE_NAME"], #config.log.db_database,
-        level = os.environ["LOG_LEVEL"], #config.log.level
+        config.d.LOG_DB_URL,
+        config.d.LOG_DATABASE_NAME,
+        level = config.d.LOG_LEVEL,
     )
 
     database_client = providers.Singleton(
         mongodb_service.MongoAsyncService,
-        os.environ["DB_URL"], #config.database.url,
-        os.environ["DB_NAME"], #config.database.name
+        config.d.DB_URL,
+        config.d.DB_NAME,
     )
 
     crypto_service = providers.Singleton(
@@ -47,9 +50,9 @@ class Container(containers.DeclarativeContainer):
 
     totp = providers.Singleton(
         TOTP,
-        os.environ["TOTP_SECRET"],
-        os.environ["TOTP_DIGEST"],
-        int(os.environ["TOTP_TIME_STEP"]),
-        int(os.environ["TOTP_RETURN_DIGITS"]),
+        config.d.TOTP_SECRET,
+        config.d.TOTP_DIGEST,
+        config.d.TOTP_TIME_STEP,
+        config.d.TOTP_RETURN_DIGITS,
         logging
     )
