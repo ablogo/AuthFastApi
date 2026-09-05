@@ -13,7 +13,7 @@ from src.services.user_service import change_password, insert_address, get_addre
 from src.services.jwt_service import verify_token_from_requests
 from src.services.totp_service import TOTP
 import src.services.user_service as uSvc
-from src.dependencies import get_db
+from src.dependency_injection.mongo_db import get_db
 
 oauth2_scheme = JWTCustom(tokenUrl="/auth/sign-in")
 router = APIRouter(
@@ -24,7 +24,7 @@ db_dependency = Annotated[MongoAsyncService, Depends(Provide[Container.database_
 totp_dependency = Annotated[TOTP, Depends(Provide[Container.totp])]
 
 # Route to add an users
-@router.get("/user")
+@router.get("/user", response_model_by_alias = False, response_model = User)
 @inject
 async def get_user(db: db_dependency, email: Annotated[str, Depends(verify_token_from_requests)]):
     user = await uSvc.get_user(email, db.get_db())
@@ -33,7 +33,7 @@ async def get_user(db: db_dependency, email: Annotated[str, Depends(verify_token
     else:
         return Response(status_code = status.HTTP_404_NOT_FOUND)
 
-@router.post("/user/img", response_model_by_alias = False)
+@router.post("/user/img")
 @inject
 async def add_user_image(file: UploadFile, db: db_dependency, email: Annotated[str, Depends(verify_token_from_requests)]):
     result = await uSvc.add_user_picture(email, db.get_db(), file = file, content_type = file.content_type)
@@ -42,7 +42,7 @@ async def add_user_image(file: UploadFile, db: db_dependency, email: Annotated[s
     else:
         return Response(status_code= status.HTTP_400_BAD_REQUEST)
     
-@router.get("/user/img", response_model_by_alias = False)
+@router.get("/user/img")
 @inject
 async def get_user_image(db: db_dependency, email: Annotated[str, Depends(verify_token_from_requests)]):
     result = await uSvc.get_user_picture(email, db.get_db())
@@ -51,7 +51,7 @@ async def get_user_image(db: db_dependency, email: Annotated[str, Depends(verify
     else:
         return Response(status_code= status.HTTP_400_BAD_REQUEST)
 
-@router.put("/user")
+@router.put("/user", response_model = User, response_model_by_alias = False)
 @inject
 async def update_user(db: db_dependency, model: User, email: Annotated[str, Depends(oauth2_scheme)]):
     user = await uSvc.update_user(db.get_db(), model)
@@ -85,7 +85,7 @@ async def verify_2f_code(code: str, email: Annotated[str, Depends(oauth2_scheme)
     else:
         return Response(status_code = status.HTTP_401_UNAUTHORIZED)
 
-@router.post("/user/address")
+@router.post("/user/address", response_model_by_alias = False, response_model = Address)
 @inject
 async def create_address(db: db_dependency, model: Address, email: Annotated[str, Depends(oauth2_scheme)]):
     address = await insert_address(email, model, db.get_db())
@@ -94,7 +94,7 @@ async def create_address(db: db_dependency, model: Address, email: Annotated[str
     else:
         return Response(status_code=status.HTTP_400_BAD_REQUEST)
 
-@router.get("/user/address")
+@router.get("/user/address", response_model_by_alias = False, response_model = list[Address])
 @inject
 async def get_addresses(db: db_dependency, email: Annotated[str, Depends(oauth2_scheme)]):
     addresses = await get_address(db.get_db(), email)

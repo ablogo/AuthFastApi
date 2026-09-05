@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated, Optional
 from bson import ObjectId
-from pydantic import BaseModel, PlainValidator, Field
+from pydantic import AliasChoices, BaseModel, PlainValidator, Field
 
 from src.models.pydantic_objects import PyObjectId
 
@@ -14,7 +14,7 @@ def set_id(value):
 
 
 class Address(BaseModel):
-    id: Annotated[Optional[PyObjectId], PlainValidator(set_id), Field(validate_default=True, serialization_alias="_id")] = Field(default=None, validation_alias="_id")
+    id: Annotated[Optional[PyObjectId], PlainValidator(set_id), Field(validate_default=True, serialization_alias="_id")] = Field(default=None, validation_alias=AliasChoices("id", "_id"))
     country: str
     state: str
     colony: str

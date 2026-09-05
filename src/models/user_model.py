@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated, List, Optional
 from bson import ObjectId
-from pydantic import AfterValidator, BaseModel, BeforeValidator, ConfigDict, Field, field_validator
+from pydantic import BaseModel, BeforeValidator, Field, field_validator
 
 from src.models.address_model import Address
 from src.models.pydantic_objects import PyObjectId

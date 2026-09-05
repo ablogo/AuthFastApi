@@ -8,7 +8,7 @@ from src.routers.admin import users_router as admin_user_router, security_router
 from src.middlewares.jwt_middleware import JWTMiddleware
 from src.middlewares.http_middleware import HttpMiddleware
 from src.dependency_injection.containers import Container
-from src.dependencies import close_db
+from src.dependency_injection.mongo_db import close_db
 
 container = Container()
 origins = container.config.d.CORS_ALLOWED_HOSTS().split(',') if container.config.d.CORS_ALLOWED_HOSTS() else []

@@ -69,7 +69,7 @@ async def add_user_picture(email: str, db: AsyncDatabase, file: UploadFile | Non
                                 
                 if user_picture is not None:
                     query_filter = {"_id": user_bd["_id"]}
-                    update_op = {"$set" : {"picture" : Binary(img), "content_type": content_type, "picture_url": "" }}
+                    update_op = { "$set": { "picture": Binary(img), "content_type": content_type, "picture_url": "" }}
                     op_result = await db[users_pics_collection].update_one(query_filter, update_op)
                     
                     if op_result.modified_count > 0:
@@ -82,8 +82,8 @@ async def add_user_picture(email: str, db: AsyncDatabase, file: UploadFile | Non
                         result = True
             elif pic_url:
                 if user_picture is not None:
-                    query_filter = {"_id": user_bd["_id"]}
-                    update_op = {"$set" : {"picture_url" : pic_url, "content_type": 'text/plain', "picture": None }}
+                    query_filter = { "_id": user_bd["_id"] }
+                    update_op = { "$set": { "picture_url": pic_url, "content_type": 'text/plain', "picture": None }}
                     op_result = await db[users_pics_collection].update_one(query_filter, update_op)
                     
                     if op_result.modified_count > 0:
@@ -137,7 +137,7 @@ async def disabled_user(db: AsyncDatabase, email: str, log = log_service) -> boo
 
         if user_db != None:
             query_filter = {"email": email}
-            update_op = {"$set" : {"disabled" : False }}
+            update_op = { "$set": { "disabled": False }}
             op_result = await db[users_collection].update_one(query_filter, update_op)
             
             if op_result.modified_count > 0:
@@ -164,7 +164,7 @@ async def update_user(db: AsyncDatabase, model: User, log = log_service) -> User
                     update_fields[key]= value
                     
                 if update_fields:
-                    update_result = await db[users_collection].update_one({'_id': ObjectId(model.id)}, { "$set": update_fields })
+                    update_result = await db[users_collection].update_one({ '_id': ObjectId(model.id) }, { "$set": update_fields })
                     if update_result.modified_count > 0:
                         user = User(**user_db)
     except Exception as e:
@@ -191,8 +191,8 @@ async def change_password(db: AsyncDatabase, email: str, new_password: str, cryp
         user_db = await db[users_collection].find_one({'email': email})
 
         if user_db != None:
-            query_filter = {"email": email}
-            update_op = {"$set" : {"password" : await crypto.get_psw_hash(new_password) }}
+            query_filter = { "email": email }
+            update_op = { "$set": { "password": await crypto.get_psw_hash(new_password) }}
 
             if (await db[users_collection].update_one(query_filter, update_op)).modified_count > 0:
                 result = True
@@ -209,11 +209,11 @@ async def insert_address(email: str, address: Address, db: AsyncDatabase, log = 
         user_db = await db[users_collection].find_one({'email': email})
 
         if user_db is not None:
-            query_filter = {"email": email}
+            query_filter = { "email": email }
             new_address = address.model_dump()
             id = new_address.pop("id")
             new_address.update({ "_id": id })
-            update_op = {"$push" : {"address" : new_address }}
+            update_op = { "$push": { "address": new_address }}
             updated_result = await db[users_collection].update_one(query_filter, update_op)
 
             if updated_result.modified_count > 0:
@@ -228,10 +228,10 @@ async def insert_address(email: str, address: Address, db: AsyncDatabase, log = 
 async def get_address(db: AsyncDatabase, email: str, log = log_service) -> list[Address] | None:
     try:
         addresses = None
-        query = {'email': email}
-        projection = {"address": 1, "_id": 0}
+        query = { 'email': email }
+        projection = { "address": 1, "_id": 0 }
         result = await db[users_collection].find_one(query, projection)
-        addresses = result["address"] # type: ignore
+        addresses = [Address.model_validate(item) for item in result["address"]] # type: ignore
 
     except Exception as e:
         log.logger.error(e)
@@ -242,13 +242,11 @@ async def get_address(db: AsyncDatabase, email: str, log = log_service) -> list[
 async def update_address(db: AsyncDatabase, email: str, address: Address, log = log_service) -> bool:
     try:
         result = False
-        updated_address = address.model_dump()
-        id = updated_address.pop("id")
-        updated_address.update({ "_id": id })
+        updated_address = address.model_dump(by_alias = True)
         
-        query_filter = {"email": email, "address._id": address.id }
-        update_op = {"$set" : {"address.$[elem]" : address.model_dump() }}
-        array_filter = [{"elem._id": address.id}]
+        query_filter = { "email": email, "address._id": address.id }
+        update_op =  {"$set": { "address.$[elem]": updated_address }}
+        array_filter = [{ "elem._id": address.id }]
         updated_result = await db[users_collection].update_one(query_filter, update_op, array_filters = array_filter)
         
         if updated_result.matched_count > 0 or updated_result.modified_count > 0:
@@ -266,8 +264,8 @@ async def change_status(status: bool, email: str, db: AsyncDatabase, log = log_s
         user_db = await db[users_collection].find_one({'email': email})
 
         if user_db != None:
-            query_filter = {"email": email}
-            update_op = {"$set" : {"online" : status }}
+            query_filter = { "email": email }
+            update_op = { "$set": { "online": status }}
             op_result = await db[users_collection].update_one(query_filter, update_op)
             
             if op_result.modified_count > 0:

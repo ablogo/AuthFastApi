@@ -10,10 +10,14 @@ from src.dependency_injection.containers import Container
 
 crypto_service: CryptoService = Provide[Container.crypto_service]
 log_service: log2mongo = Provide[Container.logging]
-config = Container.config.d()
+
+def get_jwt_expire_time() -> timedelta:
+    # Solving DI framework problem, executes later, when the route is called
+    minutes = int(Container.config.d()["JWT_EXPIRE_MINUTES"])
+    return timedelta(minutes=minutes)
 
 @inject
-async def create_token(data: dict, expire_time: timedelta = timedelta(minutes=int(config["JWT_EXPIRE_MINUTES"])), crypto = crypto_service, log = log_service):
+async def create_token(data: dict, expire_time: timedelta = get_jwt_expire_time(), crypto = crypto_service, log = log_service):
     try:
         for item in data:
             if isinstance(data[item], list):
@@ -25,7 +29,7 @@ async def create_token(data: dict, expire_time: timedelta = timedelta(minutes=in
 
         expire = datetime.now(timezone.utc) + expire_time
         data.update({ "exp": expire })
-        encode_jwt = jwt.encode(data, str(config["JWT_SECRET_KEY"]), algorithm= config["JWT_ALGORITHM"])
+        encode_jwt = jwt.encode(data, Container.config.d()["JWT_SECRET_KEY"], algorithm= Container.config.d()["JWT_ALGORITHM"])
         return encode_jwt
     except Exception as e:
         log.logger.error(e)
@@ -73,7 +77,7 @@ async def verify_token_from_requests(request: Request):
 @inject
 async def verify(request_token: str, log = log_service):
         try:
-            payload = jwt.decode(request_token, str(config["JWT_SECRET_KEY"]), config["JWT_ALGORITHM"])
+            payload = jwt.decode(request_token, Container.config.d()["JWT_SECRET_KEY"], Container.config.d()["JWT_ALGORITHM"])
             return payload
         except jwt.ExpiredSignatureError as e:
             log.logger.error(e)
@@ -88,7 +92,7 @@ async def verify(request_token: str, log = log_service):
 @inject
 async def get_email(token: str, crypto = crypto_service, log = log_service):
     try:
-        payload = jwt.decode(token, str(config["JWT_SECRET_KEY"]), config["JWT_ALGORITHM"])
+        payload = jwt.decode(token, Container.config.d()["JWT_SECRET_KEY"], Container.config.d()["JWT_ALGORITHM"])
         return await crypto.decrypt_text(payload.get("sub"))
     except Exception as e:
         log.logger.error(e)

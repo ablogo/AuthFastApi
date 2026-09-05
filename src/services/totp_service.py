@@ -1,7 +1,7 @@
 from datetime import datetime
+import time
 from typing import Optional, Union
 from src.services.otp_service import OTP
-import time
 from log2mongo import log2mongo
 
 class TOTP(OTP):
