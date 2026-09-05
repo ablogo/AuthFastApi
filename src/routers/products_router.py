@@ -7,7 +7,7 @@ from src.services.jwt_service import verify_token
 from src.custom_json import MJSONEncoder
 from src.models.product_model import Product
 from src.middlewares.auth_jwt import JWTCustom
-from src.dependencies import get_db
+from src.dependency_injection.mongo_db import get_db
 
 oauth2_scheme = JWTCustom(tokenUrl="/auth/sign-in")
 router = APIRouter(tags=["products"])

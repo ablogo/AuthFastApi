@@ -1,7 +1,7 @@
 from dependency_injector import containers, providers
 from log2mongo import log2mongo
 
-from src.settings_validator import Settings
+from src.config.settings_validator import Settings
 from src.services import mongodb_service
 from src.services.crypto_service import CryptoService
 from src.services.totp_service import TOTP
